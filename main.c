@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
   }
 }
 
-// TODO: implement command args, improve ui,  score de santé, historique des
+// TODO:  improve ui,  score de santé, historique des
 // mesures, alerte intelligente ,implement process
 //
 // ./monitor           # Lancement du dashboard principal
