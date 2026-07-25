@@ -1,5 +1,7 @@
 #include "util.h"
+#include "log.h"
 #include <bits/posix2_lim.h>
+#include <errno.h>
 #include <limits.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -11,7 +13,7 @@ char **get_tokens(char *line) {
   int nb_tokens = 20;
   char **tokens = malloc(sizeof(*tokens) * nb_tokens);
   if (tokens == NULL) {
-    perror("malloc");
+    log_msg(LOG_ERROR, "get_tokens: malloc", errno);
     return NULL;
   }
   int len = strlen(line);
@@ -23,7 +25,7 @@ char **get_tokens(char *line) {
         nb_tokens *= 2;
         char **tmp = realloc(tokens, sizeof(*tokens) * nb_tokens);
         if (tmp == NULL) {
-          perror("realloc");
+          log_msg(LOG_ERROR, "get_tokens: realloc", errno);
           free(tokens);
           return NULL;
         }

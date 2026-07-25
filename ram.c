@@ -1,5 +1,7 @@
 #include "ram.h"
+#include "log.h"
 #include "util.h"
+#include <errno.h>
 #include <limits.h>
 #include <pthread.h>
 #include <stdatomic.h>
@@ -28,7 +30,7 @@ static int read_ram(Ram *ram) {
   int fields_found = 0;
   FILE *meminfo = fopen("/proc/meminfo", "r");
   if (meminfo == NULL) {
-    perror("fopen");
+    log_msg(LOG_ERROR, "read_ram: fopen", errno);
     return 0;
   }
   while (fgets(line, sizeof(line), meminfo) != NULL &&

@@ -1,5 +1,7 @@
 #include "main_loop.h"
 #include "alerts.h"
+#include "conf.h"
+#include "log.h"
 #include "terminal.h"
 #include <bits/time.h>
 #include <limits.h>
@@ -24,6 +26,12 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk) {
 
   Ram ram_snap = {0};
   Disk disk_snap = {0};
+  Config conf = {.cpu_threshold = DEFAULT_CPU_THRESHOLD,
+                 .ram_threshold = DEFAULT_RAM_THRESHOLD,
+                 .disk_threshold = DEFAULT_DISK_THRESHOLD,
+                 .refresh_interval = DEFAULT_REFRESH_INTERVAL};
+  init_logging();
+  load_conf(&conf);
 
   clock_gettime(CLOCK_MONOTONIC, &t1);
   clock_gettime(CLOCK_MONOTONIC, &t2);
@@ -55,7 +63,7 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk) {
       print_disk(&disk_snap);
     }
     if (disk != NULL && ram != NULL && cpu != NULL) {
-      print_alerts(cpu, &ram_snap, &disk_snap);
+      print_alerts(cpu, &ram_snap, &disk_snap, &conf);
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
   }

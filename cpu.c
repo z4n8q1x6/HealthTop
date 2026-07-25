@@ -1,5 +1,7 @@
 #include "cpu.h"
+#include "log.h"
 #include "util.h"
+#include <errno.h>
 #include <limits.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -20,16 +22,16 @@ enum {
 
 static int get_current_cpu_ticks(unsigned long long *active,
                                  unsigned long long *idle) {
-  FILE *cpu_stat = fopen("/proc/stat", "r");
   char line[LINE_MAX];
+  FILE *cpu_stat = fopen("/proc/stat", "r");
   if (cpu_stat == NULL) {
-    perror("fopen");
+    log_msg(LOG_ERROR, "get_current_cpu_ticks: fopen", errno);
     return 0;
   }
   if (fgets(line, sizeof(line), cpu_stat) != NULL) {
     char **tokens = get_tokens(line);
     if (tokens == NULL || tokens[8] == NULL) {
-      fprintf(stderr, "get_tokens\n");
+      log_msg(LOG_ERROR, "get_current_cpu_ticks: get_tokens", -1);
       return 0;
     }
     *active = strtoll(tokens[USER], NULL, 0) + strtoll(tokens[NICE], NULL, 0) +
@@ -74,7 +76,7 @@ void *cpu_thread(void *usage) {
 int init_cpu(Cpu *cpu) {
   FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
   if (cpuinfo == NULL) {
-    perror("fopen /proc/cpuinfo");
+    log_msg(LOG_ERROR, "init_cpu: fopen", errno);
     return 0;
   }
 

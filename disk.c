@@ -1,5 +1,7 @@
 #include "disk.h"
+#include "log.h"
 #include "util.h"
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <sys/statvfs.h>
@@ -18,8 +20,10 @@ int init_disk(_Atomic Disk *disk) {
 
 static int read_disk(Disk *disk) {
   struct statvfs buf;
-  if (statvfs("/", &buf) == -1)
+  if (statvfs("/", &buf) == -1) {
+    log_msg(LOG_ERROR, "read_disk: statvfs", errno);
     return 0;
+  }
   disk->free = buf.f_bfree * buf.f_bsize;
   disk->available = buf.f_bavail * buf.f_bsize;
   disk->privileged = disk->free - disk->available;
