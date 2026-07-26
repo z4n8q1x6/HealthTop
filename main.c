@@ -110,10 +110,8 @@ int main(int argc, char **argv) {
   }
 }
 
-// TODO:  improve ui,  score de santé, historique des
-// mesures, implement process
-//
-//
+// TODO:  implement process, improve ui, refactor main function, refactor other
+// stuff, implement json
 // ./monitor           # Lancement du dashboard principal
 // ./monitor --cpu     # Affichage ciblé du CPU
 // ./monitor --ram     # Affichage ciblé de la RAM

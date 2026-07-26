@@ -1,11 +1,15 @@
 #include "log.h"
+#include "errno.h"
 #include <limits.h>
+#include <linux/limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 static char log_path[PATH_MAX] = {0};
+static char history_path[PATH_MAX] = {0};
+static FILE *history = NULL;
 
 int init_logging() {
   char *home = getenv("HOME");
@@ -16,7 +20,14 @@ int init_logging() {
   snprintf(log_path, sizeof(log_path), "%s/.config/ztop/ztop.log", home);
   FILE *log = fopen(log_path, "a");
   if (log == NULL) {
-    perror("Failed to load the log file, fopen");
+    perror("Failed to load ztop.log, fopen");
+    return 0;
+  }
+  snprintf(history_path, sizeof(history_path), "%s/.config/ztop/history.log",
+           home);
+  history = fopen(history_path, "a");
+  if (history == NULL) {
+    log_msg(LOG_WARNING, "Failed to load history.log", errno);
     return 0;
   }
   fclose(log);
@@ -83,4 +94,16 @@ int get_time(char *buffer, size_t n) {
   if (strftime(buffer, n, "%Y-%m-%d (%H:%M:%S)", local) == 0)
     return 0;
   return 1;
+}
+
+// we still need to close the history file at some point and we need to find a
+// way to shrink the two log files so they don't take too much space for the
+// user
+void log_mesures(Cpu *cpu, Ram *ram, Disk *disk, int score) {
+  if (history == NULL)
+    return;
+  char time_buffer[256];
+  get_time(time_buffer, sizeof(time_buffer));
+  fprintf(history, "%s | CPU=%d%% | RAM=%d%% | DISK=%d%% | HEALTH=%d%%\n",
+          time_buffer, (int)cpu->usage, ram->usage, disk->usage, score);
 }

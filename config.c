@@ -1,4 +1,4 @@
-#include "conf.h"
+#include "config.h"
 #include "limits.h"
 #include "log.h"
 #include <errno.h>

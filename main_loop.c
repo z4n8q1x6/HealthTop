@@ -1,6 +1,7 @@
 #include "main_loop.h"
 #include "alerts.h"
-#include "conf.h"
+#include "config.h"
+#include "health.h"
 #include "log.h"
 #include "terminal.h"
 #include <bits/time.h>
@@ -23,6 +24,7 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk) {
   unsigned long long timeout =
       33333333; // 30fps ( 1 refresh each 1/30s = (1/30)*10^9 in nanosec)
   unsigned long long remaining;
+  struct timespec last_log = {0};
 
   Ram ram_snap = {0};
   Disk disk_snap = {0};
@@ -64,6 +66,16 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk) {
     }
     if (disk != NULL && ram != NULL && cpu != NULL) {
       print_alerts(cpu, &ram_snap, &disk_snap, &conf);
+      int score = get_health_score(cpu, &ram_snap, &disk_snap, &conf);
+      print_health(score);
+      clock_gettime(CLOCK_MONOTONIC, &t2);
+      unsigned long long elapsed_logging =
+          (t2.tv_sec * 1000000000ULL + t2.tv_nsec) -
+          (last_log.tv_sec * 1000000000ULL + last_log.tv_nsec);
+      if (elapsed_logging >= 1000000000ULL) {
+        log_mesures(cpu, &ram_snap, &disk_snap, score);
+        clock_gettime(CLOCK_MONOTONIC, &last_log);
+      }
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
   }

@@ -1,7 +1,7 @@
 #ifndef ALERT_H
 #define ALERT_H
 
-#include "conf.h"
+#include "config.h"
 #include "cpu.h"
 #include "disk.h"
 #include "ram.h"
