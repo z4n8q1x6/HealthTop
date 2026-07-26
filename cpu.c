@@ -46,33 +46,6 @@ static int get_current_cpu_ticks(unsigned long long *active,
   return 0;
 }
 
-void *cpu_thread(void *usage) {
-  unsigned long long active_t1, active_t2, idle_t1, idle_t2, active, idle;
-  _Atomic unsigned long long *usage_ptr = usage;
-  char **tokens;
-  char line[LINE_MAX];
-
-  if (!get_current_cpu_ticks(&active_t1, &idle_t1))
-    return NULL;
-  while (1) {
-    sleep(1);
-    if (get_current_cpu_ticks(&active_t2, &idle_t2)) {
-      active = active_t2 - active_t1;
-      idle = idle_t2 - idle_t1;
-      if (active != 0) {
-        *usage_ptr = (active * 100) / (active + idle);
-      } else {
-        *usage_ptr = 0;
-      }
-      active_t1 = active_t2;
-      idle_t1 = idle_t2;
-    } else {
-      return NULL;
-    }
-  }
-  return NULL;
-}
-
 int init_cpu(Cpu *cpu) {
   FILE *cpuinfo = fopen("/proc/cpuinfo", "r");
   if (cpuinfo == NULL) {
@@ -107,6 +80,36 @@ int init_cpu(Cpu *cpu) {
 
   return 1;
   fclose(cpuinfo);
+}
+
+int set_cpu_usage(_Atomic unsigned long long *usage, int looping) {
+  unsigned long long active_t1, active_t2, idle_t1, idle_t2, active, idle;
+  if (!get_current_cpu_ticks(&active_t1, &idle_t1))
+    return 0;
+  do {
+    sleep(1);
+    if (get_current_cpu_ticks(&active_t2, &idle_t2)) {
+      active = active_t2 - active_t1;
+      idle = idle_t2 - idle_t1;
+      if (active != 0) {
+        *usage = (active * 100) / (active + idle);
+      } else {
+        *usage = 0;
+      }
+      active_t1 = active_t2;
+      idle_t1 = idle_t2;
+    } else {
+      return 0;
+    }
+  } while (looping);
+  return 1;
+}
+
+void *cpu_thread(void *usage) {
+  if (!set_cpu_usage((_Atomic unsigned long long *)usage, 1)) {
+    return NULL;
+  }
+  return NULL;
 }
 
 void print_cpu(Cpu *cpu) {

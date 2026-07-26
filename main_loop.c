@@ -2,6 +2,7 @@
 #include "alerts.h"
 #include "config.h"
 #include "health.h"
+#include "json.h"
 #include "log.h"
 #include "terminal.h"
 #include <bits/time.h>
@@ -76,6 +77,7 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk) {
         log_mesures(cpu, &ram_snap, &disk_snap, score);
         clock_gettime(CLOCK_MONOTONIC, &last_log);
       }
+      export_json(cpu, &ram_snap, &disk_snap, score);
     }
     clock_gettime(CLOCK_MONOTONIC, &t2);
   }

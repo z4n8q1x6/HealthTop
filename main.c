@@ -1,5 +1,7 @@
+#include "config.h"
 #include "cpu.h"
 #include "disk.h"
+#include "health.h"
 #include "log.h"
 #include "main_loop.h"
 #include "ram.h"
@@ -24,7 +26,7 @@ int main(int argc, char **argv) {
   signal(SIGINT, handle_sigint);
   init_terminal();
 #include <string.h>
-  char *args[] = {"--cpu", "--ram", "--disk"};
+  char *args[] = {"--cpu", "--ram", "--disk", "--process", "--json", "--help"};
   if (argc > 1) {
     if (strncmp(argv[1], args[0], strlen(args[0])) == 0) {
       Cpu cpu = {.usage = 0, .nb_cores = 0, .model_name = {0}};
@@ -65,6 +67,38 @@ int main(int argc, char **argv) {
         return 1;
       }
       run_main_loop(NULL, NULL, &disk);
+    } else if (strncmp(argv[1], args[4], strlen(args[4])) == 0) {
+      reset_terminal();
+      Config conf = {.cpu_threshold = DEFAULT_CPU_THRESHOLD,
+                     .ram_threshold = DEFAULT_RAM_THRESHOLD,
+                     .disk_threshold = DEFAULT_DISK_THRESHOLD,
+                     .refresh_interval = DEFAULT_REFRESH_INTERVAL};
+      init_logging();
+      load_conf(&conf);
+      Cpu cpu = {.usage = 0, .nb_cores = 0, .model_name = {0}};
+      if (!init_cpu(&cpu)) {
+        reset_terminal();
+        return 1;
+      }
+      set_cpu_usage(&cpu.usage, 0);
+      _Atomic Ram ram;
+      if (!init_ram(&ram)) {
+        reset_terminal();
+        return 1;
+      }
+      _Atomic Disk disk;
+      if (!init_disk(&disk)) {
+        reset_terminal();
+        return 1;
+      }
+#include "json.h"
+      Ram snap_ram = ram;
+      Disk snap_disk = disk;
+      int score = get_health_score(&cpu, &snap_ram, &snap_disk, &conf);
+      if (!export_json(&cpu, &snap_ram, &snap_disk, score)) {
+        return 1;
+      }
+      return 0;
     } else {
       reset_terminal();
       printf("Invalid arg\n");
@@ -110,12 +144,12 @@ int main(int argc, char **argv) {
   }
 }
 
-// TODO:  implement process, improve ui, refactor main function, refactor other
-// stuff, implement json
-// ./monitor           # Lancement du dashboard principal
-// ./monitor --cpu     # Affichage ciblé du CPU
-// ./monitor --ram     # Affichage ciblé de la RAM
-// ./monitor --disk    # Affichage ciblé du disque
-// ./monitor --process # Liste des processus
-// ./monitor --json    # Export au format JSON
-// ./monitor --help    # Liste de l'ensemble des commandes
+// TODO:  finish json, refactor main, implement process then  improve ui +
+// refactoring
+// ./ztop
+// ./ztop --cpu
+// ./ztop --ram
+// ./ztop --disk
+// ./ztop --process
+// ./ztop --json
+// ./ztop --help
