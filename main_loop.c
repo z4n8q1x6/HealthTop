@@ -33,7 +33,6 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk) {
                  .ram_threshold = DEFAULT_RAM_THRESHOLD,
                  .disk_threshold = DEFAULT_DISK_THRESHOLD,
                  .refresh_interval = DEFAULT_REFRESH_INTERVAL};
-  init_logging();
   load_conf(&conf);
 
   clock_gettime(CLOCK_MONOTONIC, &t1);
