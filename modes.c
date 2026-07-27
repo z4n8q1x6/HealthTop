@@ -1,3 +1,4 @@
+#include "modes.h"
 #include "config.h"
 #include "cpu.h"
 #include "health.h"
@@ -125,7 +126,7 @@ void run_main_mode() {
   run_main_loop(&cpu, &ram, &disk);
 }
 
-void run_compact_mode() {}
+void run_process_mode() {}
 
 void print_help() {
   printf("Usage: ztop [OPTION]\n\n");
