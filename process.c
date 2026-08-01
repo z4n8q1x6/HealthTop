@@ -129,7 +129,7 @@ void print_processes(ProcessList *ps) {
   printf("%-8s %-35s %-10s %-10s %-15s %-10s\n", "PID", "NAME", "STATE",
          "THREADS", "USER", "MEM");
 
-  for (int i = 0; i < ps->count; i++) {
+  for (size_t i = 0; i < ps->count; i++) {
     printf("%-8s %-35s %-10s %-10d %-15s %lu\n", ps->items[i].pid,
            ps->items[i].name, ps->items[i].state, ps->items[i].threads,
            ps->items[i].user, ps->items[i].mem);

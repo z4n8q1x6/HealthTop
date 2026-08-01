@@ -20,7 +20,7 @@ void init_terminal() {
   }
 }
 
-void handle_input() {
+void handle_input(int main_mode, int *view) {
   char c;
   ssize_t n = read(STDIN_FILENO, &c, 1);
   if (n == -1) {
@@ -29,9 +29,25 @@ void handle_input() {
   } else if (n == 0) {
     return;
   }
-  if (c == 'q') {
+  switch (c) {
+  case 'q':
     reset_terminal();
     exit(EXIT_SUCCESS);
+    break;
+    if (main_mode) {
+    case '1':
+      *view = VIEW_CPU;
+      break;
+    case '2':
+      *view = VIEW_RAM;
+      break;
+    case '3':
+      *view = VIEW_DISK;
+      break;
+    case '4':
+      *view = VIEW_PROCESS;
+      break;
+    }
   }
 }
 

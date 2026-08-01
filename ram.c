@@ -27,7 +27,7 @@ int init_ram(_Atomic Ram *ram) {
 
 static int read_ram(Ram *ram) {
   char line[LINE_MAX];
-  int fields_found = 0;
+  size_t fields_found = 0;
   FILE *meminfo = fopen("/proc/meminfo", "r");
   if (meminfo == NULL) {
     log_msg(LOG_ERROR, "read_ram: fopen", errno);

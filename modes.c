@@ -26,7 +26,7 @@ void run_cpu_mode() {
     exit(EXIT_FAILURE);
   }
   init_terminal();
-  run_main_loop(&cpu, NULL, NULL);
+  run_main_loop(&cpu, NULL, NULL, NULL);
 }
 
 void run_ram_mode() {
@@ -41,7 +41,7 @@ void run_ram_mode() {
     exit(EXIT_FAILURE);
   }
   init_terminal();
-  run_main_loop(NULL, &ram, NULL);
+  run_main_loop(NULL, &ram, NULL, NULL);
 }
 
 void run_disk_mode() {
@@ -56,7 +56,7 @@ void run_disk_mode() {
     exit(EXIT_FAILURE);
   }
   init_terminal();
-  run_main_loop(NULL, NULL, &disk);
+  run_main_loop(NULL, NULL, &disk, NULL);
 }
 
 void run_json_mode() {
@@ -125,8 +125,17 @@ void run_main_mode() {
     log_msg(LOG_ERROR, "disk pthread_create", errno);
     exit(EXIT_FAILURE);
   }
+
+  _Atomic ProcessList ps;
+  atomic_init(&ps, (ProcessList){0});
+  pthread_t pthread_process;
+  if (pthread_create(&pthread_process, NULL, processes_thread, &ps) != 0) {
+    log_msg(LOG_ERROR, "processes pthread_create", errno);
+    exit(EXIT_FAILURE);
+  }
+
   init_terminal();
-  run_main_loop(&cpu, &ram, &disk);
+  run_main_loop(&cpu, &ram, &disk, &ps);
 }
 
 void run_process_mode() {
@@ -137,20 +146,7 @@ void run_process_mode() {
     log_msg(LOG_ERROR, "processes pthread_create", errno);
     exit(EXIT_FAILURE);
   }
-  // main loop
-  while (1) {
-    ProcessList snap_ps = ps;
-    ProcessInfo *owned = malloc(sizeof(*owned) * snap_ps.count);
-    if (owned == NULL) {
-      log_msg(LOG_ERROR, "main_loop_processes: malloc", errno);
-      exit(EXIT_FAILURE);
-    }
-    memcpy(owned, snap_ps.items, sizeof(*owned) * snap_ps.count);
-    snap_ps.items = owned;
-    print_processes(&snap_ps);
-    free(snap_ps.items);
-    sleep(1);
-  }
+  run_main_loop(NULL, NULL, NULL, &ps);
 }
 
 void print_help() {
