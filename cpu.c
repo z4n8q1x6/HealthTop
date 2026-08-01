@@ -70,7 +70,7 @@ int init_cpu(Cpu *cpu) {
         val++;
       val[strcspn(val, "\n")] = '\0';
 
-      strncpy(cpu->model_name, val, sizeof(cpu->model_name) - 1);
+      snprintf(cpu->model_name, sizeof(cpu->model_name), "%s", val);
       fields_found++;
     } else if (cpu->nb_cores == 0 && strstr(line, cpu_infos[1]) != NULL) {
       cpu->nb_cores = atoi(colon + 1);
@@ -115,20 +115,20 @@ void *cpu_thread(void *usage) {
 void print_cpu(Cpu *cpu) {
   printf("--------------------- CPU ---------------------\n");
   printf("\033[34m");
-  printf("Cpu Model : %s\n", cpu->model_name);
-  printf("Cpu Cores : %d\n", cpu->nb_cores);
+  printf("Model : %s\n", cpu->model_name);
+  printf("Cores : %d\n", cpu->nb_cores);
   printf("\033[0m");
   if (cpu->usage <= 33) {
     printf("\033[32m"
-           "Cpu Usage : %llu%%\n",
+           "Usage : %llu%%\n",
            cpu->usage);
   } else if (cpu->usage > 33 && cpu->usage < 67) {
     printf("\033[33m"
-           "Cpu Usage : %llu%%\n",
+           "Usage : %llu%%\n",
            cpu->usage);
   } else {
     printf("\033[31m"
-           "Cpu Usage : %llu%%\n",
+           "Usage : %llu%%\n",
            cpu->usage);
   }
   printf("\033[0m");

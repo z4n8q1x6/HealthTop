@@ -1,2 +1,17 @@
-all:
-	gcc main.c cpu.c util.c terminal.c ram.c disk.c main_loop.c alerts.c config.c log.c health.c json.c modes.c -o ztop -lm
+CC = gcc
+CFLAGS = -Wall -Wextra
+LDLIBS = -lm 
+
+SRC = $(wildcard *.c)
+OBJ = $(SRC:.c=.o)
+
+ztop: $(OBJ)
+	$(CC) $(OBJ) -o ztop $(LDLIBS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+.PHONY: clean
+clean:
+	rm -f *.o ztop
+

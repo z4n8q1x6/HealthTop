@@ -35,7 +35,7 @@ static int read_ram(Ram *ram) {
   }
   while (fgets(line, sizeof(line), meminfo) != NULL &&
          fields_found < n_ram_infos) {
-    for (int i = 0; i < n_ram_infos; i++) {
+    for (size_t i = 0; i < n_ram_infos; i++) {
       if (strncmp(line, ram_infos[i], strlen(ram_infos[i])) == 0) { // check
         char *colon = strchr(line, ':');
         if (colon == NULL)

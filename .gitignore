@@ -1,3 +1,4 @@
 ztop
 *.o
 ztop.json
+*.log

@@ -41,7 +41,6 @@ int init_logging() {
 // mutiple threads it leads to race condition beacuse the "a" mode in
 // fopen (which mirrors the O_APPEND flag in open) gurantee atomicity only for
 // different fds.
-//
 // ABOUT: use -1 or any negative number if no errno
 int log_msg(int flag, const char *msg, int error) {
   if (log_path[0] == '\0')

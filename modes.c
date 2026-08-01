@@ -5,11 +5,14 @@
 #include "json.h"
 #include "log.h"
 #include "main_loop.h"
+#include "process.h"
 #include "terminal.h"
 #include <errno.h>
 #include <pthread.h>
+#include <stdatomic.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 void run_cpu_mode() {
   Cpu cpu = {.usage = 0, .nb_cores = 0, .model_name = {0}};
@@ -126,7 +129,29 @@ void run_main_mode() {
   run_main_loop(&cpu, &ram, &disk);
 }
 
-void run_process_mode() {}
+void run_process_mode() {
+  _Atomic ProcessList ps;
+  atomic_init(&ps, (ProcessList){0});
+  pthread_t pthread_process;
+  if (pthread_create(&pthread_process, NULL, processes_thread, &ps) != 0) {
+    log_msg(LOG_ERROR, "processes pthread_create", errno);
+    exit(EXIT_FAILURE);
+  }
+  // main loop
+  while (1) {
+    ProcessList snap_ps = ps;
+    ProcessInfo *owned = malloc(sizeof(*owned) * snap_ps.count);
+    if (owned == NULL) {
+      log_msg(LOG_ERROR, "main_loop_processes: malloc", errno);
+      exit(EXIT_FAILURE);
+    }
+    memcpy(owned, snap_ps.items, sizeof(*owned) * snap_ps.count);
+    snap_ps.items = owned;
+    print_processes(&snap_ps);
+    free(snap_ps.items);
+    sleep(1);
+  }
+}
 
 void print_help() {
   printf("Usage: ztop [OPTION]\n\n");
