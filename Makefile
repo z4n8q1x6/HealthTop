@@ -1,6 +1,6 @@
 CC = gcc
-CFLAGS = -Wall -Wextra
-LDLIBS = -lm 
+CFLAGS = -Wall -Wextra -g
+LDLIBS = -lm
 
 SRC = $(wildcard *.c)
 OBJ = $(SRC:.c=.o)

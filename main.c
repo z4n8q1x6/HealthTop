@@ -37,12 +37,3 @@ int main(int argc, char **argv) {
          argv[1]);
   return 1;
 }
-
-// TODO: implement process, improve ui and refine
-// ./ztop
-// ./ztop --cpu
-// ./ztop --ram
-// ./ztop --disk
-// ./ztop --process
-// ./ztop --json
-// ./ztop --help

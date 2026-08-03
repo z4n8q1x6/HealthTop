@@ -146,17 +146,29 @@ void run_process_mode() {
     log_msg(LOG_ERROR, "processes pthread_create", errno);
     exit(EXIT_FAILURE);
   }
+  init_terminal();
   run_main_loop(NULL, NULL, NULL, &ps);
 }
 
 void print_help() {
   printf("Usage: ztop [OPTION]\n\n");
+
   printf("Options:\n");
-  printf("  ztop            Launch full dashboard (CPU, RAM, disk)\n");
-  printf("  ztop --cpu      Show CPU only\n");
-  printf("  ztop --ram      Show RAM only\n");
+  printf(
+      "  ztop            Launch full dashboard (cpu, ram, disk, processes)\n");
+  printf("  ztop --cpu      Show cpu only\n");
+  printf("  ztop --ram      Show ram only\n");
   printf("  ztop --disk     Show disk only\n");
-  printf("  ztop --json     Print system status as JSON and exit\n");
+  printf("  ztop --process  Show processes only\n");
+  printf("  ztop --json     Export system status as JSON and exit\n");
   printf("  ztop --help     Show this help message\n\n");
+
+  printf("Keyboard Shortcuts:\n");
+  printf("  q               Quit the program\n");
+  printf("  1               CPU view (dashboard mode only)\n");
+  printf("  2               RAM view (dashboard mode only)\n");
+  printf("  3               Disk view (dashboard mode only)\n");
+  printf("  4               Process view (dashboard mode only)\n");
+
   exit(EXIT_SUCCESS);
 }

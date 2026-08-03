@@ -1,19 +1,27 @@
 #include "process.h"
+#include "log.h"
 #include "util.h"
 #include <dirent.h>
+#include <errno.h>
+#include <linux/tiocl.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/ioctl.h>
+
+// "PID", "NAME", "STATE", "THREADS", "USER", "MEM"
+#define COL_FMT "%-8s %-35s %-10s %-10s %-20s %-10s\n"
+#define TABLE_WIDTH 97
 
 int init_processlist(ProcessList *ps) {
   ps->count = 0;
   ps->capacity = 5000;
   ps->items = malloc(sizeof(*ps->items) * ps->capacity);
   if (ps->items == NULL) {
-    perror("malloc");
+    log_msg(LOG_ERROR, "init_processlist: malloc", errno);
     return 0;
   }
   return 1;
@@ -22,7 +30,7 @@ int init_processlist(ProcessList *ps) {
 int read_processes(ProcessList *ps) {
   DIR *proc_dir = opendir("/proc/");
   if (proc_dir == NULL) {
-    perror("opendir");
+    log_msg(LOG_ERROR, "read_processses: opendir", errno);
     return 0;
   }
   struct dirent *proc_dirent;
@@ -36,13 +44,13 @@ int read_processes(ProcessList *ps) {
       strcat(status_path, "/status");
       FILE *status = fopen(status_path, "r");
       if (status == NULL) {
-        perror("status fopen");
+        log_msg(LOG_ERROR, "read_processses: fopen status", errno);
         continue;
       }
       if (ps->count >= ps->capacity) {
         ProcessInfo *tmp = realloc(ps->items, sizeof(*tmp) * ps->capacity * 2);
         if (tmp == NULL) {
-          perror("realloc");
+          log_msg(LOG_ERROR, "read_processses: realloc", errno);
           return 0;
         }
         ps->items = tmp;
@@ -101,7 +109,7 @@ void *processes_thread(void *arg) {
     return NULL;
   }
   if (!read_processes(&buff1)) {
-    fprintf(stderr, "Failed to read processes\n");
+    log_msg(LOG_ERROR, "processes_thread: read_processses", errno);
   } else {
     *ps = buff1;
   }
@@ -112,7 +120,7 @@ void *processes_thread(void *arg) {
       return NULL;
     }
     if (!read_processes(&buff1)) {
-      fprintf(stderr, "Failed to read processes\n");
+      log_msg(LOG_ERROR, "processes_thread: read_processses", errno);
     } else {
       *ps = buff1;
     }
@@ -123,18 +131,24 @@ void *processes_thread(void *arg) {
   return NULL;
 }
 
-void print_processes(ProcessList *ps) {
-  printf("-------------------------------------------------------------------"
-         "--\n");
-  printf("%-8s %-35s %-10s %-10s %-15s %-10s\n", "PID", "NAME", "STATE",
-         "THREADS", "USER", "MEM");
+void print_processes(ProcessList *ps, size_t *offset) {
 
-  for (size_t i = 0; i < ps->count; i++) {
+  struct winsize ws;
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &ws) == -1) {
+    perror("ioctl");
+    log_msg(LOG_ERROR, "print_processes: ioctl", errno);
+    return;
+  }
+
+  printf(COL_FMT, "PID", "NAME", "STATE", "THREADS", "USER", "MEM");
+  for (int i = 0; i < TABLE_WIDTH; i++)
+    printf("─");
+  putchar('\n');
+  if (*offset > ps->count - (ws.ws_row - 3))
+    *offset = ps->count - (ws.ws_row - 3);
+  for (size_t i = *offset; i < *offset + (ws.ws_row - 3); i++) {
     printf("%-8s %-35s %-10s %-10d %-15s %lu\n", ps->items[i].pid,
            ps->items[i].name, ps->items[i].state, ps->items[i].threads,
            ps->items[i].user, ps->items[i].mem);
   }
-
-  printf("-------------------------------------------------------------------"
-         "--\n");
 }

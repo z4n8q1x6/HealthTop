@@ -20,6 +20,6 @@ typedef struct {
 
 int read_processes(ProcessList *ps);
 void *processes_thread(void *arg);
-void print_processes(ProcessList *ps);
+void print_processes(ProcessList *ps, size_t *offset);
 
 #endif // PROCESSS_H

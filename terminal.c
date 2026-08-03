@@ -20,7 +20,7 @@ void init_terminal() {
   }
 }
 
-void handle_input(int main_mode, int *view) {
+void handle_input(int *action) {
   char c;
   ssize_t n = read(STDIN_FILENO, &c, 1);
   if (n == -1) {
@@ -31,23 +31,38 @@ void handle_input(int main_mode, int *view) {
   }
   switch (c) {
   case 'q':
-    reset_terminal();
-    exit(EXIT_SUCCESS);
+    *action = ACTION_QUIT;
     break;
-    if (main_mode) {
-    case '1':
-      *view = VIEW_CPU;
-      break;
-    case '2':
-      *view = VIEW_RAM;
-      break;
-    case '3':
-      *view = VIEW_DISK;
-      break;
-    case '4':
-      *view = VIEW_PROCESS;
-      break;
-    }
+  case '1':
+    *action = ACTION_VIEW_CPU;
+    break;
+  case '2':
+    *action = ACTION_VIEW_RAM;
+    break;
+  case '3':
+    *action = ACTION_VIEW_DISK;
+    break;
+  case '4':
+    *action = ACTION_VIEW_PROCESS;
+    break;
+  case 'j':
+    *action = ACTION_CURSOR_DOWN;
+    break;
+  case 'k':
+    *action = ACTION_CURSOR_UP;
+    break;
+  case 'd':
+    *action = ACTION_SCROLL_DOWN;
+    break;
+  case 'u':
+    *action = ACTION_SCROLL_UP;
+    break;
+  case 'g':
+    *action = ACTION_FIRST_LINE;
+    break;
+  case 'G':
+    *action = ACTION_LAST_LINE;
+    break;
   }
 }
 

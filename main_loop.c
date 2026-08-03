@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <poll.h>
 #include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,6 +43,8 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk,
                  .refresh_interval = DEFAULT_REFRESH_INTERVAL};
   load_conf(&conf);
 
+  size_t offset = 0;
+  int action = -1;
   int view = -1;
   int main_mode = disk != NULL && ram != NULL && cpu != NULL && ps != NULL;
   if (main_mode || cpu != NULL) {
@@ -67,7 +70,52 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk,
     int retval = poll(fds, nfds, (int)remaining);
     if (retval > 0) {
       if (fds[0].revents & POLLIN) {
-        handle_input(main_mode, &view);
+        handle_input(&action);
+        switch (action) {
+        case ACTION_QUIT:
+          reset_terminal();
+          exit(EXIT_SUCCESS);
+          break;
+        case ACTION_VIEW_CPU:
+          view = VIEW_CPU;
+          break;
+        case ACTION_VIEW_RAM:
+          view = VIEW_RAM;
+          break;
+        case ACTION_VIEW_DISK:
+          view = VIEW_DISK;
+          break;
+        case ACTION_VIEW_PROCESS:
+          view = VIEW_PROCESS;
+          break;
+        case ACTION_CURSOR_DOWN:
+          offset++;
+          break;
+        case ACTION_CURSOR_UP:
+          if (offset > 0)
+            offset--;
+          break;
+        case ACTION_SCROLL_DOWN:
+          offset += SCROLL_STEP;
+          break;
+
+        case ACTION_SCROLL_UP:
+          if (offset >= SCROLL_STEP) {
+            offset -= SCROLL_STEP;
+          } else {
+            offset = 0;
+          }
+          break;
+        case ACTION_FIRST_LINE:
+          offset = 0;
+          break;
+        case ACTION_LAST_LINE:
+          offset = SIZE_MAX;
+          break;
+        default:
+          break;
+        }
+        action = -1;
       }
     }
     clock_gettime(CLOCK_MONOTONIC, &t1);
@@ -95,10 +143,10 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk,
       memcpy(owned, ps_snap.items, sizeof(*owned) * ps_snap.count);
       ps_snap.items = owned;
       if (view == VIEW_PROCESS)
-        print_processes(&ps_snap);
+        print_processes(&ps_snap, &offset);
     }
 
-    if (main_mode) {
+    if (main_mode && view != VIEW_PROCESS) {
       int score = get_health_score(cpu, &ram_snap, &disk_snap, &conf);
       print_health(score);
       clock_gettime(CLOCK_MONOTONIC, &t2);
