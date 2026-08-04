@@ -4,6 +4,7 @@
 #include <errno.h>
 #include <limits.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -18,6 +19,7 @@ void init_terminal() {
     log_msg(LOG_ERROR, "init_terminal: tcsetattr", errno);
     exit(EXIT_FAILURE);
   }
+  printf("\033[?25l"); // hide cursor
 }
 
 void handle_input(int *action) {
@@ -44,6 +46,9 @@ void handle_input(int *action) {
     break;
   case '4':
     *action = ACTION_VIEW_PROCESS;
+    break;
+  case '5':
+    *action = ACTION_VIEW_HEALTH;
     break;
   case 'j':
     *action = ACTION_CURSOR_DOWN;
@@ -77,4 +82,5 @@ void reset_terminal() {
     log_msg(LOG_ERROR, "reset_terminal: tcsetattr", errno);
     exit(EXIT_FAILURE);
   }
+  printf("\033[?25h"); // restore cursor
 }

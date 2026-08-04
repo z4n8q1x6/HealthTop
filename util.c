@@ -48,13 +48,12 @@ void print_usage_bar(int usage) {
   if (usage > 100)
     usage = 100;
 
-  // printf("[");
+  printf("[");
   for (int i = 0; i < usage; i++) {
     printf("█");
   }
   for (int i = 0; i < remaining; i++) {
     printf("░");
   }
-  printf("\n");
-  // printf("]\n");
+  printf("]\n");
 }

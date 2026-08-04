@@ -21,5 +21,6 @@ typedef struct {
 int read_processes(ProcessList *ps);
 void *processes_thread(void *arg);
 void print_processes(ProcessList *ps, size_t *offset);
+int get_processes(ProcessList *ps);
 
 #endif // PROCESSS_H

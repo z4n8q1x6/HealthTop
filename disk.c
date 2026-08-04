@@ -46,12 +46,25 @@ void *disk_thread(void *arg) {
 }
 
 void print_disk(Disk *disk) {
-  printf("--------------------- DISK ---------------------\n");
-  printf("Total memory: %.0lfG\n", round(BYTE_TO_GIB((double)disk->total)));
-  printf("Avaialable memory: %.0lfG\n",
+  printf("\033[32m");
+  printf("=====================\n");
+  printf(" ____ ___ ____  _  __\n"
+         "|  _ \\_ _/ ___|| |/ /\n"
+         "| | | | |\\___ \\| ' / \n"
+         "| |_| | | ___) | . \\ \n"
+         "|____/___|____/|_|\\_\\\n\n");
+  printf("=====================\n");
+  printf("\n");
+  printf("Total memory     : \033[37m%.0lfG\033[32m\n",
+         round(BYTE_TO_GIB((double)disk->total)));
+  printf("Available memory : \033[37m%.0lfG\033[32m\n",
          round(BYTE_TO_GIB((double)disk->available)));
-  printf("Free memory: %.0lfG\n", round(BYTE_TO_GIB((double)disk->free)));
-  printf("Used memory: %.0lfG\n", round(BYTE_TO_GIB((double)disk->used)));
-  printf("Usage: %d%%\n", disk->usage);
+  printf("Free memory      : \033[37m%.0lfG\033[32m\n",
+         round(BYTE_TO_GIB((double)disk->free)));
+  printf("Used memory      : \033[37m%.0lfG\033[32m\n",
+         round(BYTE_TO_GIB((double)disk->used)));
+  printf("Usage            : \033[37m%d%%\033[32m\n", disk->usage);
+  printf("\n");
   print_usage_bar(disk->usage);
+  printf("\033[0m");
 }

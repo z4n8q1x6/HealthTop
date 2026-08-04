@@ -86,7 +86,12 @@ void run_json_mode() {
   }
   Ram snap_ram = ram;
   Disk snap_disk = disk;
-  int score = get_health_score(&cpu, &snap_ram, &snap_disk, &conf);
+  ProcessList ps;
+  if (!get_processes(&ps)) {
+    log_msg(LOG_ERROR, "Failed to fetch the processes", -1);
+    exit(EXIT_FAILURE);
+  }
+  int score = get_health_score(&cpu, &snap_ram, &snap_disk, &ps, &conf);
   if (!export_json(&cpu, &snap_ram, &snap_disk, score)) {
     exit(EXIT_FAILURE);
   }

@@ -113,24 +113,19 @@ void *cpu_thread(void *usage) {
 }
 
 void print_cpu(Cpu *cpu) {
-  printf("--------------------- CPU ---------------------\n");
   printf("\033[34m");
-  printf("Model : %s\n", cpu->model_name);
-  printf("Cores : %d\n", cpu->nb_cores);
-  printf("\033[0m");
-  if (cpu->usage <= 33) {
-    printf("\033[32m"
-           "Usage : %llu%%\n",
-           cpu->usage);
-  } else if (cpu->usage > 33 && cpu->usage < 67) {
-    printf("\033[33m"
-           "Usage : %llu%%\n",
-           cpu->usage);
-  } else {
-    printf("\033[31m"
-           "Usage : %llu%%\n",
-           cpu->usage);
-  }
-  printf("\033[0m");
+  printf("===================\n");
+  printf("  ____ ____  _   _ \n"
+         " / ___|  _ \\| | | |\n"
+         "| |   | |_) | | | |\n"
+         "| |___|  __/| |_| |\n"
+         " \\____|_|    \\___/ \n\n");
+  printf("===================\n");
+  printf("\n");
+  printf("Model : \033[37m%s\033[34m\n", cpu->model_name);
+  printf("Cores : \033[37m%d\033[34m\n", cpu->nb_cores);
+  printf("Usage : \033[37m%u%%\033[34m\n", (unsigned int)cpu->usage);
+  printf("\n");
   print_usage_bar(cpu->usage);
+  printf("\033[0m");
 }

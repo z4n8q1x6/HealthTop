@@ -83,12 +83,22 @@ void *ram_thread(void *arg) {
 }
 
 void print_ram(Ram *snap) {
-  printf("--------------------- RAM ---------------------\n");
-  printf("Total: %zu\n", snap->total);
-  printf("Available: %zu\n", snap->available);
-  printf("Free : %zu\n", snap->free);
-  printf("Cached: %zu\n", snap->cached);
-  printf("Used: %zu\n", snap->used);
-  printf("Usage: %d%%\n", snap->usage);
+  printf("\033[31m");
+  printf("======================\n");
+  printf(" ____     _    __  __ \n"
+         "|  _ \\   / \\  |  \\/  |\n"
+         "| |_) | / _ \\ | |\\/| |\n"
+         "|  _ < / ___ \\| |  | |\n"
+         "|_| \\_/_/   \\_\\_|  |_|\n\n");
+  printf("======================\n");
+  printf("\n");
+  printf("Total    : \033[37m%zu\033[31m\n", snap->total);
+  printf("Available: \033[37m%zu\033[31m\n", snap->available);
+  printf("Free     : \033[37m%zu\033[31m\n", snap->free);
+  printf("Cached   : \033[37m%zu\033[31m\n", snap->cached);
+  printf("Used     : \033[37m%zu\033[31m\n", snap->used);
+  printf("Usage    : \033[37m%d%%\033[31m\n", snap->usage);
+  printf("\n");
   print_usage_bar(snap->usage);
+  printf("\033[0m");
 }

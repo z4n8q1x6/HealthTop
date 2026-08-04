@@ -11,6 +11,7 @@ enum {
   VIEW_RAM,
   VIEW_DISK,
   VIEW_PROCESS,
+  VIEW_HEALTH,
 };
 
 #define SCROLL_STEP 10

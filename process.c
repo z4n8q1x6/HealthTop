@@ -13,8 +13,18 @@
 #include <sys/ioctl.h>
 
 // "PID", "NAME", "STATE", "THREADS", "USER", "MEM"
-#define COL_FMT "%-8s %-35s %-10s %-10s %-20s %-10s\n"
-#define TABLE_WIDTH 97
+#define COL_FMT                                                                \
+  "\033[40m"                                                                   \
+  " %-9s %-37s %-10s %-10s %-25s %-15s\n"                                      \
+  "\033[0m"
+
+#define DATA_FMT                                                               \
+  " \033[31m%-9s " /* PID */                                                   \
+  "\033[32m%-37s " /* NAME */                                                  \
+  "\033[33m%-10s " /* STATE */                                                 \
+  "\033[34m%-10d " /* THREADS */                                               \
+  "\033[35m%-25s " /* USER */                                                  \
+  "\033[36m%luK\n" /* MEM */
 
 int init_processlist(ProcessList *ps) {
   ps->count = 0;
@@ -109,7 +119,7 @@ void *processes_thread(void *arg) {
     return NULL;
   }
   if (!read_processes(&buff1)) {
-    log_msg(LOG_ERROR, "processes_thread: read_processses", errno);
+    log_msg(LOG_ERROR, "processes_thread: read_processses", -1);
   } else {
     *ps = buff1;
   }
@@ -120,7 +130,7 @@ void *processes_thread(void *arg) {
       return NULL;
     }
     if (!read_processes(&buff1)) {
-      log_msg(LOG_ERROR, "processes_thread: read_processses", errno);
+      log_msg(LOG_ERROR, "processes_thread: read_processses", -1);
     } else {
       *ps = buff1;
     }
@@ -139,16 +149,28 @@ void print_processes(ProcessList *ps, size_t *offset) {
     log_msg(LOG_ERROR, "print_processes: ioctl", errno);
     return;
   }
-
   printf(COL_FMT, "PID", "NAME", "STATE", "THREADS", "USER", "MEM");
-  for (int i = 0; i < TABLE_WIDTH; i++)
-    printf("─");
-  putchar('\n');
-  if (*offset > ps->count - (ws.ws_row - 3))
-    *offset = ps->count - (ws.ws_row - 3);
-  for (size_t i = *offset; i < *offset + (ws.ws_row - 3); i++) {
-    printf("%-8s %-35s %-10s %-10d %-15s %lu\n", ps->items[i].pid,
-           ps->items[i].name, ps->items[i].state, ps->items[i].threads,
-           ps->items[i].user, ps->items[i].mem);
+  int nb_lines = ws.ws_row - 2;
+  if (*offset > ps->count - nb_lines)
+    *offset = ps->count - nb_lines;
+  for (size_t i = *offset; i < nb_lines + *offset; i++) {
+    printf(DATA_FMT, ps->items[i].pid, ps->items[i].name, ps->items[i].state,
+           ps->items[i].threads, ps->items[i].user, ps->items[i].mem);
   }
+  printf("\033[0m");
+}
+
+int get_processes(ProcessList *ps) {
+  ProcessList buffer = {0};
+  if (!init_processlist(&buffer)) {
+    return 0;
+  }
+  if (!read_processes(&buffer)) {
+    log_msg(LOG_ERROR, "get_processes: read_processses", -1);
+    free(buffer.items);
+    return 0;
+  } else {
+    *ps = buffer;
+  }
+  return 1;
 }

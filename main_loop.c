@@ -88,6 +88,9 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk,
         case ACTION_VIEW_PROCESS:
           view = VIEW_PROCESS;
           break;
+        case ACTION_VIEW_HEALTH:
+          view = VIEW_HEALTH;
+          break;
         case ACTION_CURSOR_DOWN:
           offset++;
           break;
@@ -144,11 +147,16 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk,
       ps_snap.items = owned;
       if (view == VIEW_PROCESS)
         print_processes(&ps_snap, &offset);
+      if (!main_mode)
+        free(ps_snap.items);
     }
 
-    if (main_mode && view != VIEW_PROCESS) {
-      int score = get_health_score(cpu, &ram_snap, &disk_snap, &conf);
-      print_health(score);
+    if (main_mode) {
+      int score = get_health_score(cpu, &ram_snap, &disk_snap, &ps_snap, &conf);
+      if (view == VIEW_HEALTH) {
+        print_health(score);
+        print_alerts(cpu, &ram_snap, &disk_snap, &conf);
+      }
       clock_gettime(CLOCK_MONOTONIC, &t2);
       unsigned long long elapsed_logging =
           (t2.tv_sec * 1000000000ULL + t2.tv_nsec) -
@@ -157,7 +165,6 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk,
         log_mesures(cpu, &ram_snap, &disk_snap, score);
         clock_gettime(CLOCK_MONOTONIC, &last_log);
       }
-      print_alerts(cpu, &ram_snap, &disk_snap, &conf);
       export_json(cpu, &ram_snap, &disk_snap, score);
       free(ps_snap.items);
     }
