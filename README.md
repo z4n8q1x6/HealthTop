@@ -4,12 +4,12 @@ A lightweight terminal-based Linux system health monitor written in C with no ex
 A fully hand-written C project focused on low-level Linux system programming.
 It reads live CPU, RAM, disk, and process data directly from /proc and statvfs, displays it in a terminal dashboard, and computes a simple system health score with alerts.
 
-## Data & logs
+## Configuration & Logging
 
 `ztop` stores its files under `~/.config/ztop/` 
+- `ztop.conf` — user config (thresholds, refresh interval)
 - `history.log` — periodic CPU/RAM/disk/health measurements
 - `ztop.log` — internal error/debug log
-- `ztop.conf` — user config (thresholds, refresh interval)
 
 ## Build
 
