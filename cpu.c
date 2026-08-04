@@ -1,4 +1,5 @@
 #include "cpu.h"
+#include "colors.h"
 #include "log.h"
 #include "util.h"
 #include <errno.h>
@@ -113,7 +114,7 @@ void *cpu_thread(void *usage) {
 }
 
 void print_cpu(Cpu *cpu) {
-  printf("\033[34m");
+  printf(BLUE);
   printf("===================\n");
   printf("  ____ ____  _   _ \n"
          " / ___|  _ \\| | | |\n"
@@ -122,10 +123,10 @@ void print_cpu(Cpu *cpu) {
          " \\____|_|    \\___/ \n\n");
   printf("===================\n");
   printf("\n");
-  printf("Model : \033[37m%s\033[34m\n", cpu->model_name);
-  printf("Cores : \033[37m%d\033[34m\n", cpu->nb_cores);
-  printf("Usage : \033[37m%u%%\033[34m\n", (unsigned int)cpu->usage);
+  printf("Model : " WHITE "%s\n" BLUE, cpu->model_name);
+  printf("Cores : " WHITE "%d\n" BLUE, cpu->nb_cores);
+  printf("Usage : " WHITE "%u%%\n" BLUE, (unsigned int)cpu->usage);
   printf("\n");
   print_usage_bar(cpu->usage);
-  printf("\033[0m");
+  printf(RESET);
 }

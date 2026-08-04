@@ -95,9 +95,8 @@ int get_time(char *buffer, size_t n) {
   return 1;
 }
 
-// we still need to close the history file at some point and we need to find a
-// way to shrink the two log files so they don't take too much space for the
-// user
+// we need to shrink the two log files so they don't take too much
+// space for the user
 void log_mesures(Cpu *cpu, Ram *ram, Disk *disk, int score) {
   if (history == NULL)
     return;

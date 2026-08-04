@@ -122,7 +122,7 @@ void run_main_loop(Cpu *cpu, _Atomic Ram *ram, _Atomic Disk *disk,
       }
     }
     clock_gettime(CLOCK_MONOTONIC, &t1);
-    printf("\033[2J\033[H");
+    printf("\033[H\033[2J");
     if (cpu != NULL && view == VIEW_CPU) {
       print_cpu(cpu);
     }

@@ -1,4 +1,5 @@
 #include "ram.h"
+#include "colors.h"
 #include "log.h"
 #include "util.h"
 #include <errno.h>
@@ -92,13 +93,14 @@ void print_ram(Ram *snap) {
          "|_| \\_/_/   \\_\\_|  |_|\n\n");
   printf("======================\n");
   printf("\n");
-  printf("Total    : \033[37m%zu\033[31m\n", snap->total);
-  printf("Available: \033[37m%zu\033[31m\n", snap->available);
-  printf("Free     : \033[37m%zu\033[31m\n", snap->free);
-  printf("Cached   : \033[37m%zu\033[31m\n", snap->cached);
-  printf("Used     : \033[37m%zu\033[31m\n", snap->used);
-  printf("Usage    : \033[37m%d%%\033[31m\n", snap->usage);
+  printf(RED);
+  printf("Total    : " WHITE "%zuK" RED "\n", snap->total);
+  printf("Available: " WHITE "%zuK" RED "\n", snap->available);
+  printf("Free     : " WHITE "%zuK" RED "\n", snap->free);
+  printf("Cached   : " WHITE "%zuK" RED "\n", snap->cached);
+  printf("Used     : " WHITE "%zuK" RED "\n", snap->used);
+  printf("Usage    : " WHITE "%d%%" RED "\n", snap->usage);
   printf("\n");
   print_usage_bar(snap->usage);
-  printf("\033[0m");
+  printf(RESET);
 }
