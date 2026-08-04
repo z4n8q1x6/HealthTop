@@ -174,6 +174,13 @@ void print_help() {
   printf("  2               RAM view (dashboard mode only)\n");
   printf("  3               Disk view (dashboard mode only)\n");
   printf("  4               Process view (dashboard mode only)\n");
+  printf("  5               Health/alerts view (dashboard mode only)\n");
+  printf("  j               Scroll process list down one line\n");
+  printf("  k               Scroll process list up one line\n");
+  printf("  d               Scroll process list down\n");
+  printf("  u               Scroll process list up\n");
+  printf("  g               Jump to first line of the process list\n");
+  printf("  G               Jump to last line of the process list\n");
 
   exit(EXIT_SUCCESS);
 }
