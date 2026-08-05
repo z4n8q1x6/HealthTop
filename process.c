@@ -54,7 +54,6 @@ int read_processes(ProcessList *ps) {
       strcat(status_path, "/status");
       FILE *status = fopen(status_path, "r");
       if (status == NULL) {
-        log_msg(LOG_ERROR, "read_processses: fopen status", errno);
         continue;
       }
       if (ps->count >= ps->capacity) {
